@@ -35,7 +35,7 @@
       <h3 class="sec-title">Transações recentes</h3>
       <ul class="tx-list">
         {% for t in transacoes %}
-          <li class="tx">
+          <li class="tx" onclick="location.href='{% url 'editar_transacao' t.id %}'">
             <div class="tx-icon">{{ t.categoria.nome|first|upper|default:"?" }}</div>
             <div class="tx-info">
               <span class="tx-name">{{ t.descricao }}</span>
@@ -44,6 +44,8 @@
             <span class="tx-valor {% if t.tipo == 'SAIDA' %}neg{% else %}pos{% endif %}">
               {% if t.tipo == 'SAIDA' %}- {% else %}+ {% endif %}R$ {{ t.valor|floatformat:2 }}
             </span>
+            <button type="button" class="tx-del" title="Excluir" onclick="event.stopPropagation(); askDelete('{{ t.id }}')">🗑</button>
+            <form id="del-{{ t.id }}" method="post" action="{% url 'excluir_transacao' t.id %}" hidden>{% csrf_token %}</form>
           </li>
         {% endfor %}
       </ul>
@@ -60,8 +62,8 @@
   <!-- Bottom Sheet -->
   <div class="overlay {% if abrir_sheet %}open{% endif %}" id="overlay" onclick="if(event.target===this)closeSheet()">
     <div class="sheet">
-      <h2>Nova Transação</h2>
-      <form method="post" action="{% url 'nova_transacao' %}">
+      <h2>{% if editar_id %}Editar Transação{% else %}Nova Transação{% endif %}</h2>
+      <form method="post" action="{% if editar_id %}{% url 'editar_transacao' editar_id %}{% else %}{% url 'nova_transacao' %}{% endif %}">
         {% csrf_token %}
 
         <div class="valor-wrap">
@@ -97,6 +99,18 @@
     </div>
   </div>
 
+  <!-- Modal de confirmação de exclusão (RN-B) -->
+  <div class="modal-overlay" id="modalExcluir" onclick="if(event.target===this)closeDelete()">
+    <div class="modal">
+      <h3>Excluir transação?</h3>
+      <p>Essa ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeDelete()">Cancelar</button>
+        <button type="button" class="btn-danger" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
   {% if messages %}
     {% for m in messages %}
       <div class="toast show" id="toast">✓ {{ m }}</div>
@@ -118,6 +132,12 @@
     }
     document.querySelectorAll('input[name="tipo"]').forEach(r => r.addEventListener('change', syncBtn));
     syncBtn();
+
+    // Modal de exclusão: guarda o id, e o "Excluir" envia o form escondido da linha
+    let delId = null;
+    function askDelete(id) { delId = id; document.getElementById('modalExcluir').classList.add('open'); }
+    function closeDelete() { delId = null; document.getElementById('modalExcluir').classList.remove('open'); }
+    function confirmDelete() { if (delId) document.getElementById('del-' + delId).submit(); }
   </script>
 </body>
 
