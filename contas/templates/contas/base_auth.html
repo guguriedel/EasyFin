@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}EasyFin{% endblock %}</title>
+  <style>
+    :root{
+      --primary:#7C3AED; --primary-dark:#6D28D9;
+      --ink:#1f2937; --muted:#6b7280; --error:#dc2626; --border:#e5e7eb; --bg:#f3f4f6;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      background:radial-gradient(circle at 50% 0%, #ede9fe, var(--bg)); padding:24px;
+    }
+    .card{
+      width:100%; max-width:380px; background:#fff; border-radius:18px;
+      padding:32px; box-shadow:0 12px 40px rgba(80,40,160,.12);
+    }
+    .brand{display:flex; align-items:center; gap:8px; margin-bottom:24px;}
+    .brand .logo{
+      width:32px; height:32px; border-radius:8px; color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      display:flex; align-items:center; justify-content:center;
+    }
+    .brand span{font-weight:700; color:var(--primary-dark); font-size:18px;}
+    h1{margin:0 0 6px; font-size:26px; color:var(--ink);}
+    .subtitle{margin:0 0 12px; color:var(--muted); font-size:14px;}
+    .subtitle.accent{color:var(--primary);}
+    label{display:block; font-size:13px; font-weight:600; color:var(--ink); margin:16px 0 6px;}
+    .input{
+      width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;
+      font-size:14px; outline:none; transition:border .15s, box-shadow .15s;
+    }
+    .input:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+    .input.has-error{border-color:var(--error); box-shadow:0 0 0 3px rgba(220,38,38,.1);}
+    .field-error{color:var(--error); font-size:12px; margin:6px 0 0;}
+    .form-error{
+      background:#fef2f2; color:var(--error); border:1px solid #fecaca;
+      border-radius:8px; padding:10px 12px; font-size:13px; margin-bottom:8px;
+    }
+    .btn{
+      width:100%; margin-top:24px; padding:14px; border:none; border-radius:10px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff; font-size:15px; font-weight:600; cursor:pointer;
+    }
+    .btn:hover{opacity:.94;}
+    .alt{margin:20px 0 0; text-align:center; font-size:13px; color:var(--muted);}
+    .alt a{color:var(--primary-dark); font-weight:600; text-decoration:none;}
+    .forgot{display:flex; justify-content:flex-end; margin-top:6px;}
+    .forgot a{font-size:12px; color:var(--primary-dark); text-decoration:none; font-weight:600;}
+  </style>
+</head>
+<body>
+  <div class="card">{% block card %}{% endblock %}</div>
+</body>
+</html>

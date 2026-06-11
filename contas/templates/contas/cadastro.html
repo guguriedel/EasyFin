@@ -1,0 +1,39 @@
+{% extends "contas/base_auth.html" %}
+{% block title %}Criar conta — EasyFin{% endblock %}
+{% block card %}
+  <div class="brand">
+    <div class="logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 21h18M5 21V10m14 11V10M3 10l9-6 9 6M9 21v-6h6v6"/></svg>
+    </div>
+    <span>EasyFin</span>
+  </div>
+  <h1>Crie sua conta</h1>
+  <p class="subtitle accent">Comece a organizar sua vida financeira hoje.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <label for="id_nome">Nome completo</label>
+    <input type="text" name="nome" id="id_nome" placeholder="João Silva" required
+           value="{{ form.nome.value|default:'' }}"
+           class="input {% if form.nome.errors %}has-error{% endif %}">
+    {% if form.nome.errors %}<p class="field-error">⚠ {{ form.nome.errors.0 }}</p>{% endif %}
+
+    <label for="id_email">E-mail</label>
+    <input type="email" name="email" id="id_email" placeholder="user@example.com" required
+           value="{{ form.email.value|default:'' }}"
+           class="input {% if form.email.errors %}has-error{% endif %}">
+    {% if form.email.errors %}<p class="field-error">⚠ {{ form.email.errors.0 }}</p>{% endif %}
+
+    <label for="id_senha">Senha</label>
+    <input type="password" name="senha" id="id_senha" placeholder="••••" required
+           class="input {% if form.senha.errors %}has-error{% endif %}">
+    {% if form.senha.errors %}<p class="field-error">⚠ {{ form.senha.errors.0 }}</p>{% endif %}
+
+    <button class="btn" type="submit">Criar conta →</button>
+  </form>
+
+  <p class="alt">Já tem conta? <a href="{% url 'login' %}">Entre aqui</a></p>
+{% endblock %}
