@@ -28,7 +28,8 @@ def cadastro (request):
 @login_required
 def home(request):
     form = TransacaoForm(usuario=request.user)
-    return render(request, "home.html", {"form": form})
+    transacoes = request.user.transacoes.all()[:20]
+    return render(request, "home.html", {"form": form, "transacoes": transacoes})
 
 
 def entrar(request):
