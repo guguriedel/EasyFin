@@ -1,1 +1,25 @@
-issues.md
+# Infra e Bin
+venv/*
+env/*
+/staticfiles/
+/static_root/
+.vercel
+.vscode/*
+.idea/*
+Thumbs.db
+
+## Vars de amb
+.env
+.env.*
+
+## Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.log
+
+
+#LLMs e MCPs config
+.claude/*
+.gitnexus/*
