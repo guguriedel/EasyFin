@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'easyfin.wsgi.application'
 
 if os.environ.get("DATABASE_URL"):
     url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-    DATABASE = {
+    DATABASES = {
         "default":{
             "ENGINE": "django.db.backends.postgresql",
             "NAME": url.path.lstrip("/"),
