@@ -1,8 +1,153 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
-<head><meta charset="utf-8"><title>EasyFin</title></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyFin</title>
+  <style>
+    :root{
+      --primary:#7C3AED; --primary-dark:#6D28D9;
+      --bg:#F5F3FF; --card:#fff; --text:#1f2937; --muted:#6b7280;
+      --error:#dc2626; --success:#16a34a; --line:#e5e7eb;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    body{background:var(--bg);color:var(--text);min-height:100vh}
+
+    .topbar{display:flex;align-items:center;gap:10px;padding:18px 20px;background:#fff;border-bottom:1px solid var(--line)}
+    .topbar .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      display:flex;align-items:center;justify-content:center}
+    .topbar b{font-size:18px;color:var(--primary)}
+    .topbar .greet{margin-left:auto;color:var(--muted);font-size:14px}
+
+    .content{padding:28px 20px;max-width:520px;margin:0 auto}
+    .empty{margin-top:60px;text-align:center;color:var(--muted)}
+    .empty .big{font-size:40px;margin-bottom:8px}
+
+    /* FAB + */
+    .fab{position:fixed;right:22px;bottom:26px;width:60px;height:60px;border:none;border-radius:50%;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:32px;line-height:1;
+      cursor:pointer;box-shadow:0 8px 20px rgba(124,58,237,.45)}
+    .fab:active{transform:scale(.95)}
+
+    /* Bottom sheet */
+    .overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);opacity:0;visibility:hidden;transition:.25s}
+    .overlay.open{opacity:1;visibility:visible}
+    .sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;
+      padding:22px 22px 30px;transform:translateY(100%);transition:transform .28s ease;max-width:520px;margin:0 auto}
+    .overlay.open .sheet{transform:translateY(0)}
+    .sheet h2{text-align:center;font-size:18px;margin-bottom:18px}
+
+    .valor-wrap{text-align:center;margin-bottom:6px}
+    .valor-wrap small{color:var(--muted);font-size:13px}
+    .valor-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+    .valor-row .rs{font-size:22px;font-weight:700;color:var(--text)}
+    .valor-input{border:none;outline:none;font-size:34px;font-weight:800;color:var(--primary);
+      width:200px;text-align:center;background:transparent}
+
+    .segmented{display:flex;background:#f3f4f6;border-radius:999px;padding:4px;margin:14px 0}
+    .segmented input{display:none}
+    .segmented label{flex:1;text-align:center;padding:10px;border-radius:999px;cursor:pointer;
+      font-weight:600;color:var(--muted);font-size:14px}
+    .segmented input:checked + label{background:#fff;color:var(--primary);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+    .row2{display:flex;gap:10px;margin-bottom:10px}
+    .row2 > div{flex:1}
+    .sheet select,.sheet input[type=date],.nota{
+      width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font-size:14px;
+      background:#f9fafb;color:var(--text)}
+    .nota{margin-bottom:14px}
+    .sheet select:focus,.sheet input:focus{outline:none;border-color:var(--primary)}
+
+    .field-error{color:var(--error);font-size:13px;margin:4px 0 0 2px}
+    .has-error{border-color:var(--error)!important}
+
+    .btn-save{width:100%;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));cursor:pointer}
+    .btn-save:active{transform:scale(.99)}
+
+    /* Toast */
+    .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-120%);
+      background:var(--success);color:#fff;padding:13px 20px;border-radius:12px;font-weight:600;font-size:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);transition:transform .3s;z-index:50}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
 <body>
-  <h1>Olá, {{ user.first_name|default:user.email }}! </h1>
-  <p>Você está logado. (home provisória)</p>
+  <header class="topbar">
+    <div class="logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 21h18M5 21V10m14 11V10M3 10l9-6 9 6M9 21v-6h6v6"/></svg>
+    </div>
+    <b>EasyFin</b>
+    <span class="greet">Olá, {{ user.first_name|default:user.email }} 👋 · <a href="{% url 'logout' %}">sair</a></span>
+  </header>
+
+  <main class="content">
+    <div class="empty">
+      <div class="big">🪙</div>
+      Toque no <b>+</b> para adicionar sua primeira transação.
+    </div>
+  </main>
+
+  <button class="fab" onclick="openSheet()">+</button>
+
+  <!-- Bottom Sheet -->
+  <div class="overlay {% if abrir_sheet %}open{% endif %}" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet">
+      <h2>Nova Transação</h2>
+      <form method="post" action="{% url 'nova_transacao' %}">
+        {% csrf_token %}
+
+        <div class="valor-wrap">
+          <small>Quantia</small>
+          <div class="valor-row">
+            <span class="rs">R$</span>
+            <input class="valor-input {% if form.valor.errors %}has-error{% endif %}"
+                   type="number" step="0.01" inputmode="decimal" name="valor"
+                   placeholder="0,00" value="{{ form.valor.value|default:'' }}">
+          </div>
+        </div>
+        {% if form.valor.errors %}<p class="field-error" style="text-align:center">{{ form.valor.errors.0 }}</p>{% endif %}
+
+        <div class="segmented">
+          <input type="radio" name="tipo" id="t_saida" value="SAIDA"
+                 {% if form.tipo.value != 'ENTRADA' %}checked{% endif %}>
+          <label for="t_saida">Despesa</label>
+          <input type="radio" name="tipo" id="t_entrada" value="ENTRADA"
+                 {% if form.tipo.value == 'ENTRADA' %}checked{% endif %}>
+          <label for="t_entrada">Receita</label>
+        </div>
+
+        <div class="row2">
+          <div>
+            {{ form.categoria }}
+            {% if form.categoria.errors %}<p class="field-error">{{ form.categoria.errors.0 }}</p>{% endif %}
+          </div>
+          <div>{{ form.data }}</div>
+        </div>
+
+        <input class="nota" type="text" name="descricao"
+               placeholder="Adicionar uma nota (opcional)" value="{{ form.descricao.value|default:'' }}">
+
+        <button class="btn-save" type="submit">Salvar Transação</button>
+      </form>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="toast show" id="toast">✓ {{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <script>
+    function openSheet(){ document.getElementById('overlay').classList.add('open'); }
+    function closeSheet(){ document.getElementById('overlay').classList.remove('open'); }
+    // Toast some sozinho depois de 3s
+    const t = document.getElementById('toast');
+    if (t) setTimeout(() => t.classList.remove('show'), 3000);
+  </script>
 </body>
 </html>

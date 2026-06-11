@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import CadastroForm, LoginForm
+from financas.models import Categoria
+from financas.forms import TransacaoForm
+
+CATEGORIAS_PADRAO = ["Alimentação", "Transporte", "Moradia", "Lazer", "Contas", "Outros"]
 
 
 def cadastro (request):
@@ -12,6 +16,9 @@ def cadastro (request):
         form = CadastroForm(request.POST)
         if form.is_valid():
             user= form.save()
+            Categoria.objects.bulk_create(
+                [Categoria(usuario=user, nome=nome) for nome in CATEGORIAS_PADRAO]
+            )
             login(request, user)
             return redirect("home")
     else:
@@ -20,7 +27,8 @@ def cadastro (request):
 
 @login_required
 def home(request):
-    return render(request, "home.html")
+    form = TransacaoForm(usuario=request.user)
+    return render(request, "home.html", {"form": form})
 
 
 def entrar(request):
