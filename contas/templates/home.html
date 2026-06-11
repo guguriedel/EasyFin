@@ -22,6 +22,15 @@
   </header>
 
   <main class="content">
+    <div class="balance">
+      <span class="balance-label">Saldo do mês</span>
+      <span class="balance-value">R$ {{ saldo|floatformat:2 }}</span>
+      <div class="balance-row">
+        <div><small>Entradas</small><b>+ R$ {{ entradas|floatformat:2 }}</b></div>
+        <div><small>Saídas</small><b>- R$ {{ saidas|floatformat:2 }}</b></div>
+      </div>
+    </div>
+
     {% if transacoes %}
       <h3 class="sec-title">Transações recentes</h3>
       <ul class="tx-list">
@@ -66,9 +75,9 @@
         {% if form.valor.errors %}<p class="field-error" style="text-align:center">{{ form.valor.errors.0 }}</p>{% endif %}
 
         <div class="segmented">
-          <input type="radio" name="tipo" id="t_saida" value="SAIDA" {% if form.tipo.value != 'ENTRADA' %}checked{% endif %}>
+          <input type="radio" name="tipo" id="t_saida" value="SAIDA" {% if not is_entrada %}checked{% endif %}>
           <label for="t_saida">Despesa</label>
-          <input type="radio" name="tipo" id="t_entrada" value="ENTRADA" {% if form.tipo.value == 'ENTRADA' %}checked{% endif %}>
+          <input type="radio" name="tipo" id="t_entrada" value="ENTRADA" {% if is_entrada %}checked{% endif %}>
           <label for="t_entrada">Receita</label>
         </div>
 
@@ -83,7 +92,7 @@
         <input class="nota" type="text" name="descricao" placeholder="Adicionar uma nota (opcional)"
           value="{{ form.descricao.value|default:'' }}">
 
-        <button class="btn-save" type="submit">Salvar Transação</button>
+        <button class="btn-save" id="btnSave" type="submit">Salvar Transação</button>
       </form>
     </div>
   </div>
@@ -97,9 +106,18 @@
   <script>
     function openSheet() { document.getElementById('overlay').classList.add('open'); }
     function closeSheet() { document.getElementById('overlay').classList.remove('open'); }
+
     // Toast some sozinho depois de 3s
     const t = document.getElementById('toast');
     if (t) setTimeout(() => t.classList.remove('show'), 3000);
+
+    // Botão muda conforme Despesa/Receita (BDD US 5.0)
+    function syncBtn() {
+      document.getElementById('btnSave').textContent =
+        document.getElementById('t_entrada').checked ? 'Salvar Receita' : 'Salvar Transação';
+    }
+    document.querySelectorAll('input[name="tipo"]').forEach(r => r.addEventListener('change', syncBtn));
+    syncBtn();
   </script>
 </body>
 

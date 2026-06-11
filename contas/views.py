@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import CadastroForm, LoginForm
 from financas.models import Categoria
 from financas.forms import TransacaoForm
+from datetime import date
+from django.db.models import Sum
 
 CATEGORIAS_PADRAO = ["Alimentação", "Transporte", "Moradia", "Lazer", "Contas", "Outros"]
 
@@ -29,7 +31,23 @@ def cadastro (request):
 def home(request):
     form = TransacaoForm(usuario=request.user)
     transacoes = request.user.transacoes.all()[:20]
-    return render(request, "home.html", {"form": form, "transacoes": transacoes})
+
+    hoje = date.today()
+    #Transacao do mes atual
+    do_mes = request.user.transacoes.filter(data__year=hoje.year, data__month=hoje.month)
+    #aggregate -> dict tipo {"s": 150} 
+    entrada = do_mes.filter(tipo="ENTRADA").aggregate(s=Sum("valor"))["s"] or 0
+    saidas = do_mes.filter(tipo="SAIDA").aggregate(s=Sum("valor"))["s"] or 0
+    saldo = entrada - saidas
+    return render(
+        request, "home.html", {
+        "form": form,
+        "transacoes": transacoes,
+        "entradas": entrada,
+        "saidas": saidas,
+        "saldo": saldo,
+        }
+        )
 
 
 def entrar(request):

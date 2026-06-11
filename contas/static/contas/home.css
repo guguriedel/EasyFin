@@ -346,3 +346,47 @@ body {
 }
 
 /* Receita = verde (RN-C) */
+
+/* Card de saldo */
+.balance {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.balance-label {
+  font-size: 13px;
+  opacity: .85;
+}
+
+.balance-value {
+  display: block;
+  font-size: 32px;
+  font-weight: 800;
+  margin: 6px 0 16px;
+}
+
+.balance-row {
+  display: flex;
+  gap: 12px;
+}
+
+.balance-row > div {
+  flex: 1;
+  background: rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.balance-row small {
+  display: block;
+  font-size: 11px;
+  opacity: .8;
+  margin-bottom: 2px;
+}
+
+.balance-row b {
+  font-size: 15px;
+}
